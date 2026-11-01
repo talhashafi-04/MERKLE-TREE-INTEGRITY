@@ -1,0 +1,137 @@
+{
+  "reviewId": "A2OY938ZNE1GTB_0963469150_1487548800",
+  "leafIndex": 505,
+  "pathLength": 21,
+  "verified": true,
+  "proofPath": [
+    {
+      "hash": "770044fa...",
+      "fullHash": "770044fa64797937f99d486fe0ced22cd65b2e446873ee6e141d4e254d12a4a3",
+      "isLeft": false
+    },
+    {
+      "hash": "7e650fc3...",
+      "fullHash": "7e650fc316a43f2a0f3e45fe390a45dbfc41b2c9f7ba90d2785a6e608137c753",
+      "isLeft": true
+    },
+    {
+      "hash": "b1b2d8ce...",
+      "fullHash": "b1b2d8ce0e9a8bd10bbd666e5cf51e14436291f17084848c30c522b022e23469",
+      "isLeft": true
+    },
+    {
+      "hash": "71a2a2d6...",
+      "fullHash": "71a2a2d6153ae8b7c749656c9ca86ba50c7e145ded6a937eeedc50fa75395401",
+      "isLeft": false
+    },
+    {
+      "hash": "50960e2f...",
+      "fullHash": "50960e2f5d66cc03875111a5f6ab991995808873a97ae5812567fb8bb2491b99",
+      "isLeft": false
+    },
+    {
+      "hash": "b15447ce...",
+      "fullHash": "b15447ce0f2ad21edef66f954bdcb28ae7e5efd76290729f47ba0b4fd682b123",
+      "isLeft": false
+    },
+    {
+      "hash": "25da0f57...",
+      "fullHash": "25da0f57e3860a34222c85a29d0aebbe5a5e129553ab840e08fbfdb1718da4fb",
+      "isLeft": false
+    },
+    {
+      "hash": "2a6db82a...",
+      "fullHash": "2a6db82a8ced9eff9c5d133487fbe44fafcae3acbfbcd17534bbd631bf217709",
+      "isLeft": false
+    },
+    {
+      "hash": "d10aae1a...",
+      "fullHash": "d10aae1a5d1b92ac05b6b1c6d6ca533b165a07a078c7432d17261907bdf6630b",
+      "isLeft": false
+    },
+    {
+      "hash": "e3b6b340...",
+      "fullHash": "e3b6b3402a520337426e380f357676b9ffd6f97fd10dff517a88c8f7366a9f0e",
+      "isLeft": true
+    },
+    {
+      "hash": "b16cf9f3...",
+      "fullHash": "b16cf9f3e8a1169f486995eb16b90064ca7764ff3036c00fb25f14660f02c6cc",
+      "isLeft": true
+    },
+    {
+      "hash": "98cc3edd...",
+      "fullHash": "98cc3edd34b1c8e2d0a8ade775fa194c9c7d724e7a566acf6b6e18dbc87b44e1",
+      "isLeft": true
+    },
+    {
+      "hash": "8be4161a...",
+      "fullHash": "8be4161adf07ce8d7e092fb99334f9dde4f15887eb33a232cfabd3c3ef75894c",
+      "isLeft": true
+    },
+    {
+      "hash": "1b14c530...",
+      "fullHash": "1b14c530792d047bc1c001da0384e4a1137dcc194c523360959efbacdf35821d",
+      "isLeft": true
+    },
+    {
+      "hash": "fe2c4a11...",
+      "fullHash": "fe2c4a117aae25ccc796959a344e340daa9efbcd1922bc57966ea96d6d7983f0",
+      "isLeft": true
+    },
+    {
+      "hash": "b11567c0...",
+      "fullHash": "b11567c05591a99ac822e56206c88dee930ba7de9a4e61cfa32cd18ab7c00788",
+      "isLeft": true
+    },
+    {
+      "hash": "03477915...",
+      "fullHash": "034779152635b236c855643921ee25559a6b754064831ce1388760a0194d6167",
+      "isLeft": true
+    },
+    {
+      "hash": "0259d41d...",
+      "fullHash": "0259d41d1be01154f1f4e15fb762f14cf89d70d75a08493d1855fce112b1ed4c",
+      "isLeft": true
+    },
+    {
+      "hash": "5146ca91...",
+      "fullHash": "5146ca91d699819529bf94e643b57d7a8d56170f4a9d65dca017d4c7e9a39b07",
+      "isLeft": true
+    },
+    {
+      "hash": "3aa81579...",
+      "fullHash": "3aa81579c34d389ccdd258d30964fa714044279437459d71c9774c09fcb24954",
+      "isLeft": true
+    },
+    {
+      "hash": "b3089378...",
+      "fullHash": "b308937899b359f5552abf76f01f79ba7dd0e095a09009ec420f4180a03dac18",
+      "isLeft": true
+    }
+  ],
+  "nodeIndices": [
+    2097656,
+    1048827,
+    524413,
+    262206,
+    131102,
+    65550,
+    32774,
+    16386,
+    8192,
+    4095,
+    2047,
+    1023,
+    511,
+    255,
+    127,
+    63,
+    31,
+    15,
+    7,
+    3,
+    1,
+    0
+  ]
+}

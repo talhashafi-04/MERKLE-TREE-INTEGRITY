@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Merkle Tree Visualizer</title>
+    <meta charset="UTF-8">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            width: 350px;
+            background: #111111;
+            border-right: 1px solid #252525;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .panel-header {
+            padding: 24px;
+            border-bottom: 1px solid #252525;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #666666;
+            font-weight: 400;
+        }
+
+        .controls-section {
+            padding: 20px;
+            border-bottom: 1px solid #252525;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: #888888;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #e5e5e5;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover {
+            background: #252525;
+            border-color: #3a3a3a;
+        }
+
+        .btn.primary {
+            background: #0ea5e9;
+            border-color: #0ea5e9;
+            color: #ffffff;
+        }
+
+        .btn.primary:hover {
+            background: #0284c7;
+            border-color: #0284c7;
+        }
+
+        .proof-selector {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #e5e5e5;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .proof-selector:hover {
+            border-color: #0ea5e9;
+        }
+
+        .proof-selector option {
+            background: #1a1a1a;
+            color: #e5e5e5;
+        }
+
+        /* Info Stats */
+        .info-stats {
+            padding: 20px;
+            border-bottom: 1px solid #252525;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #252525;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0ea5e9;
+        }
+
+        .status-badge {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .status-badge.verified {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-badge.tampered {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Node Details */
+        .node-details {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .node-details::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .node-details::-webkit-scrollbar-track {
+            background: #111111;
+        }
+
+        .node-details::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 3px;
+        }
+
+        .node-details::-webkit-scrollbar-thumb:hover {
+            background: #3a3a3a;
+        }
+
+        .details-header {
+            font-size: 14px;
+            color: #888888;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .detail-row {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #666666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 13px;
+            color: #e5e5e5;
+            word-break: break-all;
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #1a1a1a;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #252525;
+        }
+
+        .detail-value.highlight {
+            color: #0ea5e9;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #444444;
+            padding: 40px 20px;
+            font-size: 13px;
+        }
+
+        /* Right Panel - Tree Visualization */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0a0a0a;
+            position: relative;
+        }
+
+        .tree-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #252525;
+            background: #111111;
+        }
+
+        .tree-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .tree-subtitle {
+            font-size: 13px;
+            color: #666666;
+        }
+
+        .tree-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-position: -1px -1px;
+        }
+
+        #tree-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* SVG Styles */
+        .link {
+            stroke: #2a2a2a;
+            stroke-width: 2;
+            fill: none;
+            transition: all 0.3s ease;
+        }
+
+        .link.highlighted {
+            stroke: #0ea5e9;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 4px #0ea5e9);
+        }
+
+        .node circle {
+            fill: #1a1a1a;
+            stroke: #2a2a2a;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .node:hover circle {
+            fill: #252525;
+            stroke: #3a3a3a;
+            stroke-width: 2.5;
+        }
+
+        .node.root circle {
+            fill: #0ea5e9;
+            stroke: #0284c7;
+        }
+
+        .node.root:hover circle {
+            fill: #0284c7;
+        }
+
+        .node.leaf circle {
+            fill: #7c3aed;
+            stroke: #6d28d9;
+        }
+
+        .node.leaf:hover circle {
+            fill: #6d28d9;
+        }
+
+        .node.highlighted circle {
+            fill: #0ea5e9;
+            stroke: #0284c7;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 6px #0ea5e9);
+        }
+
+        .node text {
+            fill: #e5e5e5;
+            font-size: 9px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            text-anchor: middle;
+            pointer-events: none;
+            font-weight: 500;
+        }
+
+        .node.root text,
+        .node.leaf text,
+        .node.highlighted text {
+            fill: #ffffff;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #e5e5e5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            max-width: 300px;
+            word-break: break-all;
+        }
+
+        .tooltip.active {
+            opacity: 1;
+        }
+
+        .tooltip-label {
+            font-size: 10px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .tooltip-value {
+            color: #0ea5e9;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        /* Loading State */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666666;
+        }
+
+        .spinner {
+            border: 3px solid #1a1a1a;
+            border-top: 3px solid #0ea5e9;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .left-panel {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: 100;
+                transform: translateX(-100%);
+            }
+
+            .left-panel.active {
+                transform: translateX(0);
+            }
+
+            .toggle-panel {
+                position: absolute;
+                top: 24px;
+                right: -48px;
+                width: 48px;
+                height: 48px;
+                background: #111111;
+                border: 1px solid #252525;
+                border-left: none;
+                border-radius: 0 8px 8px 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: #e5e5e5;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app-container">
+    <!-- Left Panel -->
+    <div class="left-panel" id="leftPanel">
+        <div class="panel-header">
+            <div class="logo">Merkle Tree Visualizer</div>
+            <div class="subtitle">Cryptographic Verification System</div>
+        </div>
+
+        <div class="controls-section">
+            <div class="control-group">
+                <label class="control-label">Proof Path Visualization</label>
+                <select class="proof-selector" id="proofSelector">
+                    <option value="">Select a proof to visualize...</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button class="btn primary" onclick="loadSelectedProof()">Show Proof Path</button>
+            </div>
+
+            <div class="control-group">
+                <button class="btn" onclick="clearHighlight()">Clear Highlights</button>
+            </div>
+
+            <div class="control-group">
+                <button class="btn" onclick="loadTree()">Reload Tree Data</button>
+            </div>
+        </div>
+
+        <div class="info-stats">
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Records</div>
+                    <div class="stat-value" id="records">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Tree Nodes</div>
+                    <div class="stat-value" id="treeSize">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Build Time</div>
+                    <div class="stat-value" id="buildTime">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Memory</div>
+                    <div class="stat-value" id="memory">-</div>
+                </div>
+            </div>
+            <div id="status" class="status-badge"></div>
+        </div>
+
+        <div class="node-details" id="nodeDetails">
+            <div class="empty-state">
+                Click on any node to view its details
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+        <div class="tree-header">
+            <div class="tree-title">Tree Structure</div>
+            <div class="tree-subtitle">Interactive node visualization with zoom and pan</div>
+        </div>
+
+        <div class="tree-container">
+            <svg id="tree-canvas"></svg>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Loading tree data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-label">Node Info</div>
+        <div class="tooltip-value" id="tooltipValue"></div>
+    </div>
+</div>
+
+<script>
+    let treeData = null;
+let availableProofs = [];
+let nodeMap = {};
+let currentTransform = d3.zoomIdentity;
+
+// Setup
+const svg = d3.select("#tree-canvas");
+const svgGroup = svg.append("g");
+const tooltip = document.getElementById("tooltip");
+
+// Zoom behavior with debouncing
+let zoomTimeout;
+const zoom = d3.zoom()
+    .scaleExtent([0.1, 3])
+    .on("zoom", (event) => {
+        currentTransform = event.transform;
+        svgGroup.attr("transform", event.transform);
+        
+        // Debounce detail updates
+        clearTimeout(zoomTimeout);
+        zoomTimeout = setTimeout(() => {
+            updateVisibility(event.transform);
+        }, 150);
+    });
+
+svg.call(zoom);
+
+// Load tree data
+function loadTree() {
+    document.getElementById("loading").style.display = "block";
+    
+    fetch('tree_data.json')
+        .then(r => r.json())
+        .then(data => {
+            treeData = data;
+            updateInfo(data);
+            drawTree(data);
+            loadAvailableProofs();
+            document.getElementById("loading").style.display = "none";
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("loading").innerHTML = 
+                '<div style="color: #ef4444;">Error loading tree data<br><small>Run option 11 in CLI first</small></div>';
+        });
+}
+
+// Update info panel with root verification
+function updateInfo(data) {
+    document.getElementById("records").textContent = data.records.toLocaleString();
+    document.getElementById("buildTime").textContent = data.buildTime + "ms";
+    document.getElementById("memory").textContent = data.memory + "MB";
+    document.getElementById("treeSize").textContent = data.treeSize.toLocaleString();
+
+    // Try to load stored root and compare
+    fetch('merkle_root.txt')
+        .then(r => r.text())
+        .then(storedRoot => {
+            storedRoot = storedRoot.trim();
+            const currentRoot = data.root;
+            const st = document.getElementById("status");
+            
+            if (storedRoot === currentRoot) {
+                st.textContent = "✓ VERIFIED - Matches stored root";
+                st.className = "status-badge verified";
+            } else {
+                st.textContent = "✗ TAMPERED - Root mismatch!";
+                st.className = "status-badge tampered";
+            }
+            
+            // Show both roots for comparison
+            const rootInfo = document.createElement('div');
+            rootInfo.style.fontSize = '0.85em';
+            rootInfo.style.marginTop = '10px';
+            rootInfo.innerHTML = `
+                <div>Stored: ${storedRoot.substr(0, 16)}...</div>
+                <div>Current: ${currentRoot.substr(0, 16)}...</div>
+            `;
+            st.appendChild(rootInfo);
+        })
+        .catch(err => {
+            // No stored root file, use data.integrity
+            const st = document.getElementById("status");
+            if (data.integrity) {
+                st.textContent = "✓ VERIFIED";
+                st.className = "status-badge verified";
+            } else {
+                st.textContent = "✗ TAMPERED";
+                st.className = "status-badge tampered";
+            }
+        });
+}
+
+// Load available proofs
+function loadAvailableProofs() {
+    fetch('proofs/')
+        .then(r => r.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const links = doc.querySelectorAll('a');
+            
+            availableProofs = [];
+            const selector = document.getElementById('proofSelector');
+            selector.innerHTML = '<option value="">Select a proof to visualize...</option>';
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.endsWith('.json')) {
+                    // Store ONLY the filename, not the full path
+                    const filename = href.split('/').pop(); // Get just the filename
+                    availableProofs.push(filename);
+                    
+                    const reviewId = filename.replace('proof_', '').replace('.json', '');
+                    const option = document.createElement('option');
+                    option.value = filename; // Store only filename
+                    option.textContent = reviewId;
+                    selector.appendChild(option);
+                }
+            });
+
+            if (availableProofs.length === 0) {
+                selector.innerHTML = '<option value="">No proofs available - Export from CLI (option 12)</option>';
+            }
+            
+            console.log('Loaded proofs:', availableProofs);
+        })
+        .catch(err => {
+            console.error('Could not load proofs:', err);
+            const selector = document.getElementById('proofSelector');
+            selector.innerHTML = '<option value="">Proofs folder not accessible</option>';
+        });
+}
+
+// Load selected proof
+function loadSelectedProof() {
+    const selector = document.getElementById('proofSelector');
+    const selected = selector.value;
+    
+    if (!selected) {
+        alert('Please select a proof path first');
+        return;
+    }
+
+    const proofPath = 'proofs/' + selected; // Add proofs/ prefix here
+    console.log('Loading proof from:', proofPath);
+    
+    fetch(proofPath)
+        .then(r => {
+            if (!r.ok) {
+                throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+            }
+            return r.json();
+        })
+        .then(data => {
+            console.log('Proof loaded:', data);
+            highlightProof(data);
+        })
+        .catch(err => {
+            console.error('Error loading proof:', err);
+            alert(`Could not load proof file: ${err.message}\n\nMake sure the proofs folder exists and contains .json files`);
+        });
+}
+// Update visibility based on zoom level
+function updateVisibility(transform) {
+    const scale = transform.k;
+    
+    // Hide text on small nodes
+    svgGroup.selectAll(".node text")
+        .style("opacity", scale > 0.3 ? 1 : 0);
+    
+    // Simplify rendering at low zoom
+    if (scale < 0.4) {
+        svgGroup.selectAll(".link")
+            .style("stroke-width", 1);
+        svgGroup.selectAll(".node circle")
+            .attr("r", 15);
+    } else {
+        svgGroup.selectAll(".link")
+            .style("stroke-width", 2);
+        svgGroup.selectAll(".node circle")
+            .attr("r", 20);
+    }
+}
+
+function drawTree(data) {
+    svgGroup.selectAll("*").remove();
+    nodeMap = {};
+
+    const nodes = data.nodes;
+    nodes.forEach(n => nodeMap[n.id] = n);
+
+    // Filter out padding nodes (leaves without reviewId)
+    const validNodes = nodes.filter(n => {
+        // Keep all internal nodes (non-leaves)
+        if (!n.isLeaf) return true;
+        
+        // Keep only leaves that have actual review data
+        if (n.isLeaf && n.reviewId) return true;
+        
+        // Skip padding leaves
+        return false;
+    });
+
+    // Create a set of valid node IDs for quick lookup
+    const validNodeIds = new Set(validNodes.map(n => n.id));
+
+    // Compute subtree widths (only for valid nodes)
+    function computeWidth(id) {
+        const node = nodeMap[id];
+        if (!node || !validNodeIds.has(id)) return 0;
+        
+        let lw = 0, rw = 0;
+        if (node.left !== undefined && validNodeIds.has(node.left)) {
+            lw = computeWidth(node.left);
+        }
+        if (node.right !== undefined && validNodeIds.has(node.right)) {
+            rw = computeWidth(node.right);
+        }
+
+        node.subtreeWidth = Math.max(1, lw + rw);
+        return node.subtreeWidth;
+    }
+    computeWidth(0);
+
+    // Layout tree (only valid nodes)
+    function layout(id, x, y) {
+        const node = nodeMap[id];
+        if (!node || !validNodeIds.has(id)) return;
+        
+        node.x = x;
+        node.y = y;
+
+        const spacing = 60;
+        const verticalSpacing = 100;
+
+        if (node.left !== undefined && validNodeIds.has(node.left)) {
+            const leftNode = nodeMap[node.left];
+            if (leftNode) {
+                const lw = leftNode.subtreeWidth * spacing;
+                layout(node.left, x - lw / 2, y + verticalSpacing);
+            }
+        }
+
+        if (node.right !== undefined && validNodeIds.has(node.right)) {
+            const rightNode = nodeMap[node.right];
+            if (rightNode) {
+                const rw = rightNode.subtreeWidth * spacing;
+                layout(node.right, x + rw / 2, y + verticalSpacing);
+            }
+        }
+    }
+
+    layout(0, 800, 60);
+
+    // Draw links ONLY between valid nodes
+    const linkGroup = svgGroup.append("g").attr("class", "links");
+    validNodes.forEach(n => {
+        // Draw left link only if both parent and child are valid
+        if (n.left !== undefined && validNodeIds.has(n.left)) {
+            const c = nodeMap[n.left];
+            if (c && c.x !== undefined) {
+                linkGroup.append("path")
+                    .attr("class", "link")
+                    .attr("data-from", n.id)
+                    .attr("data-to", c.id)
+                    .attr("d", `M${n.x},${n.y}L${c.x},${c.y}`)
+                    .style("shape-rendering", "geometricPrecision");
+            }
+        }
+        
+        // Draw right link only if both parent and child are valid
+        if (n.right !== undefined && validNodeIds.has(n.right)) {
+            const c = nodeMap[n.right];
+            if (c && c.x !== undefined) {
+                linkGroup.append("path")
+                    .attr("class", "link")
+                    .attr("data-from", n.id)
+                    .attr("data-to", c.id)
+                    .attr("d", `M${n.x},${n.y}L${c.x},${c.y}`)
+                    .style("shape-rendering", "geometricPrecision");
+            }
+        }
+    });
+
+    // Draw nodes - ONLY valid nodes
+    const nodeGroup = svgGroup.append("g").attr("class", "nodes");
+    
+    validNodes.forEach(n => {
+        const g = nodeGroup.append("g")
+            .attr("class", "node")
+            .attr("data-id", n.id)
+            .classed("root", n.id === 0)
+            .classed("leaf", n.isLeaf);
+
+        g.append("circle")
+            .attr("cx", n.x)
+            .attr("cy", n.y)
+            .attr("r", 20)
+            .on("click", () => showNodeDetails(n))
+            .on("mouseenter", (event) => showTooltip(event, n))
+            .on("mousemove", (event) => moveTooltip(event))
+            .on("mouseleave", hideTooltip);
+
+        g.append("text")
+            .attr("x", n.x)
+            .attr("y", n.y + 3)
+            .text(n.hash.substring(0, 5))
+            .style("shape-rendering", "crispEdges");
+    });
+
+    // Center view on root with smooth transition
+    const rootNode = nodeMap[0];
+    if (rootNode) {
+        const transform = d3.zoomIdentity
+            .translate(window.innerWidth / 2 - rootNode.x, 100 - rootNode.y)
+            .scale(0.8);
+        svg.transition().duration(750).call(zoom.transform, transform);
+    }
+    
+    console.log(`Rendered ${validNodes.length} out of ${nodes.length} nodes (filtered ${nodes.length - validNodes.length} padding nodes)`);
+}
+
+// Show node details
+function showNodeDetails(node) {
+    const detailsDiv = document.getElementById("nodeDetails");
+    
+    let html = '<div class="details-header">Node Information</div>';
+    
+    html += `<div class="detail-row">
+        <div class="detail-label">Node ID</div>
+        <div class="detail-value highlight">${node.id}</div>
+    </div>`;
+    
+    html += `<div class="detail-row">
+        <div class="detail-label">Hash (Short)</div>
+        <div class="detail-value">${node.hash}</div>
+    </div>`;
+    
+    html += `<div class="detail-row">
+        <div class="detail-label">Full Hash</div>
+        <div class="detail-value">${node.fullHash}</div>
+    </div>`;
+    
+    html += `<div class="detail-row">
+        <div class="detail-label">Node Type</div>
+        <div class="detail-value highlight">${node.isLeaf ? 'Leaf Node' : node.id === 0 ? 'Root Node' : 'Internal Node'}</div>
+    </div>`;
+    
+    if (node.parent !== undefined) {
+        html += `<div class="detail-row">
+            <div class="detail-label">Parent Node</div>
+            <div class="detail-value">${node.parent}</div>
+        </div>`;
+    }
+    
+    if (node.left !== undefined) {
+        html += `<div class="detail-row">
+            <div class="detail-label">Left Child</div>
+            <div class="detail-value">${node.left}</div>
+        </div>`;
+    }
+    
+    if (node.right !== undefined) {
+        html += `<div class="detail-row">
+            <div class="detail-label">Right Child</div>
+            <div class="detail-value">${node.right}</div>
+        </div>`;
+    }
+    
+    if (node.reviewId) {
+        html += `<div class="detail-row">
+            <div class="detail-label">Review ID</div>
+            <div class="detail-value highlight">${node.reviewId}</div>
+        </div>`;
+        
+        html += `<div class="detail-row">
+            <div class="detail-label">Product ID</div>
+            <div class="detail-value">${node.product}</div>
+        </div>`;
+    }
+    
+    if (node.level !== undefined) {
+        html += `<div class="detail-row">
+            <div class="detail-label">Tree Level</div>
+            <div class="detail-value">${node.level}</div>
+        </div>`;
+    }
+    
+    detailsDiv.innerHTML = html;
+}
+
+// Tooltip functions
+function showTooltip(event, node) {
+    const tooltipValue = document.getElementById('tooltipValue');
+    
+    if (node.reviewId) {
+        tooltipValue.innerHTML = `<strong>Review:</strong> ${node.reviewId}`;
+    } else {
+        tooltipValue.innerHTML = `<strong>Node:</strong> ${node.id}<br><strong>Hash:</strong> ${node.hash}`;
+    }
+    
+    tooltip.classList.add('active');
+    moveTooltip(event);
+}
+
+function moveTooltip(event) {
+    tooltip.style.left = (event.pageX + 15) + 'px';
+    tooltip.style.top = (event.pageY + 15) + 'px';
+}
+
+function hideTooltip() {
+    tooltip.classList.remove('active');
+}
+
+// Highlight proof path
+function highlightProof(data) {
+    clearHighlight();
+
+    const path = data.nodeIndices;
+
+    // Highlight nodes
+    path.forEach(idx => {
+        d3.select(`g[data-id='${idx}']`).classed("highlighted", true);
+    });
+
+    // Highlight links
+    for (let i = 0; i < path.length - 1; i++) {
+        const from = path[i];
+        const to = path[i + 1];
+        
+        d3.selectAll("path.link")
+            .filter(function() {
+                const fromAttr = d3.select(this).attr("data-from");
+                const toAttr = d3.select(this).attr("data-to");
+                return (fromAttr == to && toAttr == from) || (fromAttr == from && toAttr == to);
+            })
+            .classed("highlighted", true);
+    }
+    
+    // Update status
+    const status = document.getElementById("status");
+    status.textContent = `✓ Proof Highlighted: ${data.reviewId}`;
+    status.className = "status-badge verified";
+
+    // Show node details for the leaf
+    if (path.length > 0 && nodeMap[path[0]]) {
+        showNodeDetails(nodeMap[path[0]]);
+    }
+}
+
+// Clear highlights
+function clearHighlight() {
+    d3.selectAll(".highlighted").classed("highlighted", false);
+    
+    if (treeData) {
+        const st = document.getElementById("status");
+        if (treeData.integrity) {
+            st.textContent = "✓ VERIFIED";
+            st.className = "status-badge verified";
+        } else {
+            st.textContent = "✗ TAMPERED";
+            st.className = "status-badge tampered";
+        }
+    }
+}
+
+// Initialize
+loadTree();
+</script>
+
+</body>
+</html>
